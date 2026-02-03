@@ -13,7 +13,7 @@ class MainActivity : FlutterActivity(), NativeNotificationsApi {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        NativeNotificationsApi.setUp(flutterEngine.binaryMessenger, this)
+        NativeNotificationsApi.setUp(flutterEngine.dartExecutor.binaryMessenger, this)
         createNotificationChannel()
     }
 
