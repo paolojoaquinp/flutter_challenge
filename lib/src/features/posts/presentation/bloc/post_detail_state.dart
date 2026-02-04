@@ -16,7 +16,7 @@ class PostDetailLoading extends PostDetailState {
 }
 
 class PostDetailLoaded extends PostDetailState {
-  final List<CommentEntity> comments;
+  final List<CommentModel> comments;
   const PostDetailLoaded({required this.comments});
 
   @override

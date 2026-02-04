@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_challenge/src/features/posts/data/models/comment_model.dart';
 import 'package:flutter_challenge/src/features/posts/domain/repositories/post_repository.dart';
 import 'package:flutter_challenge/src/features/shared/domain/entities/comment.dart';
 

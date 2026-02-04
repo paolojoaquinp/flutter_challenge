@@ -46,7 +46,7 @@ class HomePage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => PostDetailPage(post: post),
+                              builder: (_) => PostDetailScreen(post: post),
                             ),
                           );
                         },
