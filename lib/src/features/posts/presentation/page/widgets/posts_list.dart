@@ -7,10 +7,17 @@ import 'package:flutter_challenge/src/features/posts/presentation/bloc/post_bloc
 import 'package:flutter_challenge/src/features/posts/presentation/page/widgets/post_card.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class PostsList extends StatelessWidget {
+class PostsList extends StatefulWidget {
   final bool isFavorites;
 
   const PostsList({super.key, required this.isFavorites});
+
+  @override
+  State<PostsList> createState() => _PostsListState();
+}
+
+class _PostsListState extends State<PostsList> {
+  final Set<int> _animatedIds = {};
 
   @override
   Widget build(BuildContext context) {
@@ -21,14 +28,14 @@ class PostsList extends StatelessWidget {
         } else if (state is PostError) {
           return Center(child: Text(state.message));
         } else if (state is PostLoaded) {
-          final posts = isFavorites
+          final posts = widget.isFavorites
               ? state.posts.where((p) => p.isLiked).toList()
               : state.filteredPosts;
 
           if (posts.isEmpty) {
             return Center(
               child: Text(
-                isFavorites ? 'No tienes favoritos aún.' : 'No se encontraron posts.',
+                widget.isFavorites ? 'No tienes favoritos aún.' : 'No se encontraron posts.',
                 style: GoogleFonts.poppins(color: Palette.textSecondary),
               ),
             );
@@ -36,7 +43,7 @@ class PostsList extends StatelessWidget {
 
           return NotificationListener<ScrollNotification>(
             onNotification: (scrollInfo) {
-              if (!isFavorites && scrollInfo is ScrollUpdateNotification) {
+              if (!widget.isFavorites && scrollInfo is ScrollUpdateNotification) {
                 if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent * 0.8) {
                   context.read<PostBloc>().add(const LoadMorePostsEvent());
                 }
@@ -51,7 +58,7 @@ class PostsList extends StatelessWidget {
               },
               child: ListView.builder(
                 padding: const EdgeInsets.only(top: 8, bottom: 20),
-                itemCount: posts.length + (state.isLoadingMore && !isFavorites ? 1 : 0),
+                itemCount: posts.length + (state.isLoadingMore && !widget.isFavorites ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (index == posts.length) {
                     return const Padding(
@@ -61,7 +68,9 @@ class PostsList extends StatelessWidget {
                   }
                   
                   final post = posts[index];
-                  return PostCard(
+                  final bool shouldAnimate = index < 5 && !_animatedIds.contains(post.id) && !widget.isFavorites;
+
+                  final card = PostCard(
                     post: post,
                     onTap: () {
                       final postBloc = context.read<PostBloc>();
@@ -78,6 +87,29 @@ class PostsList extends StatelessWidget {
                     onLikeToggle: () {
                       context.read<PostBloc>().add(ToggleLikeEvent(post.id));
                     },
+                  );
+
+                  if (!shouldAnimate) {
+                    return card;
+                  }
+
+                  // Record that this ID has been animated
+                  _animatedIds.add(post.id);
+
+                  return TweenAnimationBuilder(
+                    tween: Tween<double>(begin: 0, end: 1),
+                    duration: Duration(milliseconds: 900 + (index * 350)),
+                    curve: Curves.easeOutBack,
+                    builder: (context, value, child) {
+                      return Opacity(
+                        opacity: value.clamp(0.0, 1.0),
+                        child: Transform.translate(
+                          offset: Offset(0, 30 * (1 - value)),
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: card,
                   );
                 },
               ),
