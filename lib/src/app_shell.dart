@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'shared/data/repositories/post_repository_impl.dart';
 import 'features/posts/presentation/bloc/post_bloc.dart';
 import 'features/posts/presentation/page/home_page.dart';
-import 'core/utils/native_api.g.dart';
+import 'core/platform/notification_api.g.dart';
 import 'core/utils/connectivity/connectivity_bloc.dart';
 
 class AppShell extends StatelessWidget {
@@ -16,7 +16,7 @@ class AppShell extends StatelessWidget {
         BlocProvider(
           create: (_) => PostBloc(
             postRepository: PostRepositoryImpl(),
-            nativeApi: NativeNotificationsApi(),
+            nativeApi: NotificationApi(),
           )..add(const LoadPostsEvent()),
         ),
         BlocProvider(

@@ -17,31 +17,26 @@ PlatformException _createConnectionError(String channelName) {
 
 class NotificationPayload {
   NotificationPayload({
-    required this.id,
+    required this.postId,
     required this.title,
-    required this.body,
   });
 
-  int id;
+  int postId;
 
   String title;
 
-  String body;
-
   Object encode() {
     return <Object?>[
-      id,
+      postId,
       title,
-      body,
     ];
   }
 
   static NotificationPayload decode(Object result) {
     result as List<Object?>;
     return NotificationPayload(
-      id: result[0]! as int,
+      postId: result[0]! as int,
       title: result[1]! as String,
-      body: result[2]! as String,
     );
   }
 }
@@ -73,11 +68,11 @@ class _PigeonCodec extends StandardMessageCodec {
   }
 }
 
-class NativeNotificationsApi {
-  /// Constructor for [NativeNotificationsApi].  The [binaryMessenger] named argument is
+class NotificationApi {
+  /// Constructor for [NotificationApi].  The [binaryMessenger] named argument is
   /// available for dependency injection.  If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  NativeNotificationsApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
+  NotificationApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
       : pigeonVar_binaryMessenger = binaryMessenger,
         pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
@@ -86,8 +81,8 @@ class NativeNotificationsApi {
 
   final String pigeonVar_messageChannelSuffix;
 
-  Future<void> showNotification(NotificationPayload payload) async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_challenge.NativeNotificationsApi.showNotification$pigeonVar_messageChannelSuffix';
+  Future<void> showLikeNotification(NotificationPayload payload) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_challenge.NotificationApi.showLikeNotification$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -108,8 +103,35 @@ class NativeNotificationsApi {
     }
   }
 
-  Future<bool> requestPermissions() async {
-    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_challenge.NativeNotificationsApi.requestPermissions$pigeonVar_messageChannelSuffix';
+  Future<bool> requestNotificationPermission() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_challenge.NotificationApi.requestNotificationPermission$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(null) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as bool?)!;
+    }
+  }
+
+  Future<bool> checkNotificationPermission() async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.flutter_challenge.NotificationApi.checkNotificationPermission$pigeonVar_messageChannelSuffix';
     final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,

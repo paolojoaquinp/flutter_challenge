@@ -4,14 +4,14 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_challenge/src/shared/data/models/post_model.dart';
 import 'package:flutter_challenge/src/shared/domain/repositories/post_repository.dart';
 import 'package:flutter_challenge/src/shared/data/repositories/post_repository_impl.dart';
-import 'package:flutter_challenge/src/core/utils/native_api.g.dart';
+import 'package:flutter_challenge/src/core/platform/notification_api.g.dart';
 
 part 'post_event.dart';
 part 'post_state.dart';
 
 class PostBloc extends Bloc<PostEvent, PostState> {
   final PostRepository postRepository;
-  final NativeNotificationsApi nativeApi;
+  final NotificationApi nativeApi;
 
   PostBloc({
     required this.postRepository,
@@ -29,7 +29,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   }
 
   void _initializeNotifications() {
-    nativeApi.requestPermissions();
+    nativeApi.requestNotificationPermission();
   }
 
   Future<void> _onLoadPosts(
@@ -135,11 +135,10 @@ class PostBloc extends Bloc<PostEvent, PostState> {
         if (post.id == event.postId) {
           final newIsLiked = !post.isLiked;
           if (newIsLiked) {
-             nativeApi.showNotification(
+             nativeApi.showLikeNotification(
                NotificationPayload(
-                 id: post.id,
+                 postId: post.id,
                  title: 'Te ha gustado:',
-                 body: post.title,
                ),
              );
           }

@@ -66,33 +66,29 @@ private func nilOrValue<T>(_ value: Any?) -> T? {
 
 /// Generated class from Pigeon that represents data sent in messages.
 struct NotificationPayload {
-  var id: Int64
+  var postId: Int64
   var title: String
-  var body: String
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
   static func fromList(_ pigeonVar_list: [Any?]) -> NotificationPayload? {
-    let id = pigeonVar_list[0] as! Int64
+    let postId = pigeonVar_list[0] as! Int64
     let title = pigeonVar_list[1] as! String
-    let body = pigeonVar_list[2] as! String
 
     return NotificationPayload(
-      id: id,
-      title: title,
-      body: body
+      postId: postId,
+      title: title
     )
   }
   func toList() -> [Any?] {
     return [
-      id,
+      postId,
       title,
-      body,
     ]
   }
 }
 
-private class NativeApiPigeonCodecReader: FlutterStandardReader {
+private class NotificationApiPigeonCodecReader: FlutterStandardReader {
   override func readValue(ofType type: UInt8) -> Any? {
     switch type {
     case 129:
@@ -103,7 +99,7 @@ private class NativeApiPigeonCodecReader: FlutterStandardReader {
   }
 }
 
-private class NativeApiPigeonCodecWriter: FlutterStandardWriter {
+private class NotificationApiPigeonCodecWriter: FlutterStandardWriter {
   override func writeValue(_ value: Any) {
     if let value = value as? NotificationPayload {
       super.writeByte(129)
@@ -114,52 +110,53 @@ private class NativeApiPigeonCodecWriter: FlutterStandardWriter {
   }
 }
 
-private class NativeApiPigeonCodecReaderWriter: FlutterStandardReaderWriter {
+private class NotificationApiPigeonCodecReaderWriter: FlutterStandardReaderWriter {
   override func reader(with data: Data) -> FlutterStandardReader {
-    return NativeApiPigeonCodecReader(data: data)
+    return NotificationApiPigeonCodecReader(data: data)
   }
 
   override func writer(with data: NSMutableData) -> FlutterStandardWriter {
-    return NativeApiPigeonCodecWriter(data: data)
+    return NotificationApiPigeonCodecWriter(data: data)
   }
 }
 
-class NativeApiPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
-  static let shared = NativeApiPigeonCodec(readerWriter: NativeApiPigeonCodecReaderWriter())
+class NotificationApiPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
+  static let shared = NotificationApiPigeonCodec(readerWriter: NotificationApiPigeonCodecReaderWriter())
 }
 
 
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
-protocol NativeNotificationsApi {
-  func showNotification(payload: NotificationPayload) throws
-  func requestPermissions(completion: @escaping (Result<Bool, Error>) -> Void)
+protocol NotificationApi {
+  func showLikeNotification(payload: NotificationPayload) throws
+  func requestNotificationPermission(completion: @escaping (Result<Bool, Error>) -> Void)
+  func checkNotificationPermission(completion: @escaping (Result<Bool, Error>) -> Void)
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
-class NativeNotificationsApiSetup {
-  static var codec: FlutterStandardMessageCodec { NativeApiPigeonCodec.shared }
-  /// Sets up an instance of `NativeNotificationsApi` to handle messages through the `binaryMessenger`.
-  static func setUp(binaryMessenger: FlutterBinaryMessenger, api: NativeNotificationsApi?, messageChannelSuffix: String = "") {
+class NotificationApiSetup {
+  static var codec: FlutterStandardMessageCodec { NotificationApiPigeonCodec.shared }
+  /// Sets up an instance of `NotificationApi` to handle messages through the `binaryMessenger`.
+  static func setUp(binaryMessenger: FlutterBinaryMessenger, api: NotificationApi?, messageChannelSuffix: String = "") {
     let channelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
-    let showNotificationChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_challenge.NativeNotificationsApi.showNotification\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let showLikeNotificationChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_challenge.NotificationApi.showLikeNotification\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      showNotificationChannel.setMessageHandler { message, reply in
+      showLikeNotificationChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let payloadArg = args[0] as! NotificationPayload
         do {
-          try api.showNotification(payload: payloadArg)
+          try api.showLikeNotification(payload: payloadArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
         }
       }
     } else {
-      showNotificationChannel.setMessageHandler(nil)
+      showLikeNotificationChannel.setMessageHandler(nil)
     }
-    let requestPermissionsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_challenge.NativeNotificationsApi.requestPermissions\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    let requestNotificationPermissionChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_challenge.NotificationApi.requestNotificationPermission\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
-      requestPermissionsChannel.setMessageHandler { _, reply in
-        api.requestPermissions { result in
+      requestNotificationPermissionChannel.setMessageHandler { _, reply in
+        api.requestNotificationPermission { result in
           switch result {
           case .success(let res):
             reply(wrapResult(res))
@@ -169,7 +166,22 @@ class NativeNotificationsApiSetup {
         }
       }
     } else {
-      requestPermissionsChannel.setMessageHandler(nil)
+      requestNotificationPermissionChannel.setMessageHandler(nil)
+    }
+    let checkNotificationPermissionChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_challenge.NotificationApi.checkNotificationPermission\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      checkNotificationPermissionChannel.setMessageHandler { _, reply in
+        api.checkNotificationPermission { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      checkNotificationPermissionChannel.setMessageHandler(nil)
     }
   }
 }

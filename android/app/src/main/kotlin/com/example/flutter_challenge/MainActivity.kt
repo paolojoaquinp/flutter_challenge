@@ -11,31 +11,31 @@ import androidx.core.app.NotificationCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 
-class MainActivity : FlutterActivity(), NativeNotificationsApi {
+class MainActivity : FlutterActivity(), NotificationApi {
     private val CHANNEL_ID = "likes_channel"
     private val NOTIFICATION_PERMISSION_REQUEST_CODE = 123
     private var pendingPermissionCallback: ((Result<Boolean>) -> Unit)? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        NativeNotificationsApi.setUp(flutterEngine.dartExecutor.binaryMessenger, this)
+        NotificationApi.setUp(flutterEngine.dartExecutor.binaryMessenger, this)
         createNotificationChannel()
     }
 
-    override fun showNotification(payload: NotificationPayload) {
+    override fun showLikeNotification(payload: NotificationPayload) {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(payload.title)
-            .setContentText(payload.body)
-            .setPriority(NotificationCompat.PRIORITY_MAX) // Use high priority for better visibility
+            .setContentText("Post #${payload.postId} liked!")
+            .setPriority(NotificationCompat.PRIORITY_MAX)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setAutoCancel(true)
 
-        notificationManager.notify(payload.id.toInt(), builder.build())
+        notificationManager.notify(payload.postId.toInt(), builder.build())
     }
 
-    override fun requestPermissions(callback: (Result<Boolean>) -> Unit) {
+    override fun requestNotificationPermission(callback: (Result<Boolean>) -> Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) ==
                 PackageManager.PERMISSION_GRANTED
@@ -49,6 +49,16 @@ class MainActivity : FlutterActivity(), NativeNotificationsApi {
                     NOTIFICATION_PERMISSION_REQUEST_CODE
                 )
             }
+        } else {
+            callback(Result.success(true))
+        }
+    }
+
+    override fun checkNotificationPermission(callback: (Result<Boolean>) -> Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
+            callback(Result.success(granted))
         } else {
             callback(Result.success(true))
         }
@@ -82,3 +92,4 @@ class MainActivity : FlutterActivity(), NativeNotificationsApi {
         }
     }
 }
+

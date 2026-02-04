@@ -48,28 +48,25 @@ class FlutterError (
 
 /** Generated class from Pigeon that represents data sent in messages. */
 data class NotificationPayload (
-  val id: Long,
-  val title: String,
-  val body: String
+  val postId: Long,
+  val title: String
 )
  {
   companion object {
     fun fromList(pigeonVar_list: List<Any?>): NotificationPayload {
-      val id = pigeonVar_list[0] as Long
+      val postId = pigeonVar_list[0] as Long
       val title = pigeonVar_list[1] as String
-      val body = pigeonVar_list[2] as String
-      return NotificationPayload(id, title, body)
+      return NotificationPayload(postId, title)
     }
   }
   fun toList(): List<Any?> {
     return listOf(
-      id,
+      postId,
       title,
-      body,
     )
   }
 }
-private open class NativeApiPigeonCodec : StandardMessageCodec() {
+private open class NotificationApiPigeonCodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
       129.toByte() -> {
@@ -93,27 +90,28 @@ private open class NativeApiPigeonCodec : StandardMessageCodec() {
 
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
-interface NativeNotificationsApi {
-  fun showNotification(payload: NotificationPayload)
-  fun requestPermissions(callback: (Result<Boolean>) -> Unit)
+interface NotificationApi {
+  fun showLikeNotification(payload: NotificationPayload)
+  fun requestNotificationPermission(callback: (Result<Boolean>) -> Unit)
+  fun checkNotificationPermission(callback: (Result<Boolean>) -> Unit)
 
   companion object {
-    /** The codec used by NativeNotificationsApi. */
+    /** The codec used by NotificationApi. */
     val codec: MessageCodec<Any?> by lazy {
-      NativeApiPigeonCodec()
+      NotificationApiPigeonCodec()
     }
-    /** Sets up an instance of `NativeNotificationsApi` to handle messages through the `binaryMessenger`. */
+    /** Sets up an instance of `NotificationApi` to handle messages through the `binaryMessenger`. */
     @JvmOverloads
-    fun setUp(binaryMessenger: BinaryMessenger, api: NativeNotificationsApi?, messageChannelSuffix: String = "") {
+    fun setUp(binaryMessenger: BinaryMessenger, api: NotificationApi?, messageChannelSuffix: String = "") {
       val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_challenge.NativeNotificationsApi.showNotification$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_challenge.NotificationApi.showLikeNotification$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val payloadArg = args[0] as NotificationPayload
             val wrapped: List<Any?> = try {
-              api.showNotification(payloadArg)
+              api.showLikeNotification(payloadArg)
               listOf(null)
             } catch (exception: Throwable) {
               wrapError(exception)
@@ -125,10 +123,28 @@ interface NativeNotificationsApi {
         }
       }
       run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_challenge.NativeNotificationsApi.requestPermissions$separatedMessageChannelSuffix", codec)
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_challenge.NotificationApi.requestNotificationPermission$separatedMessageChannelSuffix", codec)
         if (api != null) {
           channel.setMessageHandler { _, reply ->
-            api.requestPermissions{ result: Result<Boolean> ->
+            api.requestNotificationPermission{ result: Result<Boolean> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.flutter_challenge.NotificationApi.checkNotificationPermission$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.checkNotificationPermission{ result: Result<Boolean> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
