@@ -28,5 +28,4 @@ class PostEntity {
       isLiked: isLiked ?? this.isLiked,
     );
   }
-
 }

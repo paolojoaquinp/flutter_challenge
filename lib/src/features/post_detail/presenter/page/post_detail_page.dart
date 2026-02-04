@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_challenge/src/features/posts/data/models/comment_model.dart';
-import 'package:flutter_challenge/src/features/posts/data/models/post_model.dart';
-import 'package:flutter_challenge/src/features/posts/data/repositories/post_repository_impl.dart';
-import 'package:flutter_challenge/src/features/posts/presentation/bloc/post_detail_bloc.dart';
+import 'package:flutter_challenge/src/shared/data/models/comment_model.dart';
+import 'package:flutter_challenge/src/shared/data/models/post_model.dart';
+import 'package:flutter_challenge/src/shared/data/repositories/post_repository_impl.dart';
+import 'package:flutter_challenge/src/features/post_detail/presenter/bloc/post_detail_bloc.dart';
 import 'package:flutter_challenge/src/core/design/tokens/palette.dart';
 
 class PostDetailScreen extends StatelessWidget {
@@ -104,7 +104,7 @@ class _Body extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(horizontal: 24),
                               child: Divider(
                                 height: 1,
-                                color: Colors.grey.withOpacity(0.2),
+                                color: Colors.grey.withValues(alpha: 0.2),
                               ),
                             ),
                         ],
@@ -185,7 +185,7 @@ class _Body extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 18,
-                backgroundColor: Palette.brandPrimary.withOpacity(0.1),
+                backgroundColor: Palette.brandPrimary.withValues(alpha: 0.1),
                 child: Text(
                   comment.name.substring(0, 1).toUpperCase(),
                   style: GoogleFonts.poppins(

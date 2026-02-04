@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../bloc/post_bloc.dart';
 import '../widgets/post_card.dart';
 import '../widgets/search_bar_widget.dart';
-import 'post_detail_page.dart';
+import '../../../post_detail/presenter/page/post_detail_page.dart';
 import '../../../../core/design/tokens/palette.dart';
 
 class HomePage extends StatefulWidget {

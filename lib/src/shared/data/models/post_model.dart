@@ -1,4 +1,4 @@
-import 'package:flutter_challenge/src/features/posts/domain/entities/post_entity.dart';
+import 'package:flutter_challenge/src/shared/domain/entities/post_entity.dart';
 
 class PostModel extends PostEntity {
   const PostModel({

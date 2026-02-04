@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_challenge/src/core/helpers/hive_helper.dart';
-import 'package:flutter_challenge/src/shared/data/models/comment_model.dart';
-import 'package:flutter_challenge/src/shared/data/models/post_model.dart';
-import 'package:flutter_challenge/src/shared/domain/repositories/post_repository.dart';
 import 'package:oxidized/oxidized.dart';
+import 'package:flutter_challenge/src/core/helpers/hive_helper.dart';
+import 'package:flutter_challenge/src/shared/domain/repositories/post_repository.dart';
+import 'package:flutter_challenge/src/shared/data/models/post_model.dart';
+import 'package:flutter_challenge/src/shared/data/models/comment_model.dart';
 
 
 class PostRepositoryImpl implements PostRepository {
@@ -25,7 +25,7 @@ class PostRepositoryImpl implements PostRepository {
 
   @override
   Future<Result<List<PostModel>, Exception>> getPosts() async {
-    return getPaginatedPosts(page: 1, limit: 100); // For compatibility if needed
+    return getPaginatedPosts(page: 1, limit: 100);
   }
 
   @override

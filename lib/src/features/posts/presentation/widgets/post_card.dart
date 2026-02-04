@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_challenge/src/core/design/tokens/palette.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_challenge/src/features/posts/data/models/post_model.dart';
-import '../../../../core/design/tokens/palette.dart';
+import 'package:flutter_challenge/src/shared/data/models/post_model.dart';
+
 
 class PostCard extends StatelessWidget {
   final PostModel post;
