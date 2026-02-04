@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_challenge/src/features/posts/data/models/comment_model.dart';
 import 'package:flutter_challenge/src/features/posts/data/models/post_model.dart';
 import 'package:flutter_challenge/src/features/posts/data/repositories/post_repository_impl.dart';
-import 'package:flutter_challenge/src/features/posts/presentation/bloc/post_bloc.dart';
 import 'package:flutter_challenge/src/features/posts/presentation/bloc/post_detail_bloc.dart';
 import 'package:flutter_challenge/src/core/design/tokens/palette.dart';
 
@@ -31,7 +30,7 @@ class _Page extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<PostDetailBloc, PostDetailState>(
       listener: (context, state) {
-        // Handle state changes if necessary (e.g., showing a SnackBar on error)
+        // Handle state changes if necessary
       },
       child: _Body(post: post),
     );
@@ -58,45 +57,8 @@ class _Body extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24),
-                  color: Colors.white,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        post.title,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Palette.textBody,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        post.body,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Palette.textSecondary,
-                          height: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                  child: Text(
-                    'COMENTARIOS',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Palette.textSecondary,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ),
+                _PostHeader(post: post),
+                const _SectionHeader(title: 'COMENTARIOS'),
                 _CommentsContent(state: state),
                 const SizedBox(height: 40),
               ],
@@ -108,13 +70,71 @@ class _Body extends StatelessWidget {
   }
 }
 
+class _PostHeader extends StatelessWidget {
+  final PostModel post;
+  const _PostHeader({required this.post});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      color: Colors.white,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            post.title,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Palette.textBody,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            post.body,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Palette.textSecondary,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: Palette.textSecondary,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+}
+
 class _CommentsContent extends StatelessWidget {
   final PostDetailState state;
   const _CommentsContent({required this.state});
 
   @override
   Widget build(BuildContext context) {
-    if (state is PostDetailLoading) {
+    final currentState = state;
+    if (currentState is PostDetailLoading) {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(32.0),
@@ -123,8 +143,8 @@ class _CommentsContent extends StatelessWidget {
       );
     }
 
-    if (state is PostDetailLoaded) {
-      final comments = (state as PostDetailLoaded).comments;
+    if (currentState is PostDetailLoaded) {
+      final comments = currentState.comments;
       if (comments.isEmpty) {
         return const Center(child: Text('No hay comentarios.'));
       }
@@ -140,8 +160,8 @@ class _CommentsContent extends StatelessWidget {
       );
     }
 
-    if (state is PostDetailError) {
-      return Center(child: Text('Error: ${(state as PostDetailError).message}'));
+    if (currentState is PostDetailError) {
+      return Center(child: Text('Error: ${currentState.message}'));
     }
 
     return const SizedBox.shrink();

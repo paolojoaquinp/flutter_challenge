@@ -4,12 +4,12 @@ import '../models/post_model.dart';
 import '../models/comment_model.dart';
 import '../../domain/repositories/post_repository.dart';
 
+import '../../../../core/helpers/hive_helper.dart';
+
 class PostRepositoryImpl implements PostRepository {
   final Dio _dio;
+  final HiveHelper _hiveHelper = HiveHelper();
   
-  // In-memory persistent "likes" for the session
-  final Set<int> _likedPostIds = {};
-
   PostRepositoryImpl({Dio? dio}) : _dio = dio ?? Dio(
     BaseOptions(
       baseUrl: 'https://jsonplaceholder.typicode.com',
@@ -31,7 +31,7 @@ class PostRepositoryImpl implements PostRepository {
         final List<dynamic> data = response.data;
         final posts = data.map((json) {
           final post = PostModel.fromJson(json);
-          return post.copyWith(isLiked: _likedPostIds.contains(post.id));
+          return post.copyWith(isLiked: _hiveHelper.isLiked(post.id));
         }).toList();
         return Ok(posts);
       } else {
@@ -58,13 +58,13 @@ class PostRepositoryImpl implements PostRepository {
     }
   }
 
-  void toggleLike(int postId) {
-    if (_likedPostIds.contains(postId)) {
-      _likedPostIds.remove(postId);
+  Future<void> toggleLike(int postId) async {
+    if (_hiveHelper.isLiked(postId)) {
+      await _hiveHelper.removeLike(postId);
     } else {
-      _likedPostIds.add(postId);
+      await _hiveHelper.addLike(postId);
     }
   }
   
-  bool isLiked(int postId) => _likedPostIds.contains(postId);
+  bool isLiked(int postId) => _hiveHelper.isLiked(postId);
 }
