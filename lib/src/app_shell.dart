@@ -4,6 +4,7 @@ import 'shared/data/repositories/post_repository_impl.dart';
 import 'features/posts/presentation/bloc/post_bloc.dart';
 import 'features/posts/presentation/page/home_page.dart';
 import 'core/utils/native_api.g.dart';
+import 'core/utils/connectivity/connectivity_bloc.dart';
 
 class AppShell extends StatelessWidget {
   const AppShell({super.key});
@@ -17,6 +18,9 @@ class AppShell extends StatelessWidget {
             postRepository: PostRepositoryImpl(),
             nativeApi: NativeNotificationsApi(),
           )..add(const LoadPostsEvent()),
+        ),
+        BlocProvider(
+          create: (_) => ConnectivityCubit(),
         ),
       ],
       child: const HomePage(),
