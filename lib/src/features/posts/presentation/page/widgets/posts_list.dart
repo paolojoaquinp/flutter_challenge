@@ -64,10 +64,14 @@ class PostsList extends StatelessWidget {
                   return PostCard(
                     post: post,
                     onTap: () {
+                      final postBloc = context.read<PostBloc>();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => PostDetailScreen(post: post),
+                          builder: (_) => BlocProvider.value(
+                            value: postBloc,
+                            child: PostDetailScreen(post: post),
+                          ),
                         ),
                       );
                     },

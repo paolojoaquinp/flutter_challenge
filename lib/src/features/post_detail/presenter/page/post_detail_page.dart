@@ -5,6 +5,7 @@ import 'package:flutter_challenge/src/shared/data/models/comment_model.dart';
 import 'package:flutter_challenge/src/shared/data/models/post_model.dart';
 import 'package:flutter_challenge/src/shared/data/repositories/post_repository_impl.dart';
 import 'package:flutter_challenge/src/features/post_detail/presenter/bloc/post_detail_bloc.dart';
+import 'package:flutter_challenge/src/features/posts/presentation/bloc/post_bloc.dart';
 import 'package:flutter_challenge/src/core/design/tokens/palette.dart';
 
 class PostDetailScreen extends StatelessWidget {
@@ -57,6 +58,30 @@ class _Body extends StatelessWidget {
           ),
         ),
         centerTitle: true,
+        actions: [
+          BlocBuilder<PostBloc, PostState>(
+            builder: (context, state) {
+              bool isLiked = false;
+              if (state is PostLoaded) {
+                final currentPost = state.posts.firstWhere(
+                  (p) => p.id == post.id,
+                  orElse: () => post,
+                );
+                isLiked = currentPost.isLiked;
+              }
+              return IconButton(
+                icon: Icon(
+                  isLiked ? Icons.favorite : Icons.favorite_border,
+                  color: isLiked ? Colors.red : Palette.textBody,
+                ),
+                onPressed: () {
+                  context.read<PostBloc>().add(ToggleLikeEvent(post.id));
+                },
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: CustomScrollView(
         slivers: [
