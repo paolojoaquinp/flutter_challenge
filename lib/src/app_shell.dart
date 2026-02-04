@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'shared/data/repositories/post_repository_impl.dart';
 import 'features/posts/presentation/bloc/post_bloc.dart';
-import 'features/posts/presentation/pages/home_page.dart';
+import 'features/posts/presentation/page/home_page.dart';
 import 'core/utils/native_api.g.dart';
 
 class AppShell extends StatelessWidget {
