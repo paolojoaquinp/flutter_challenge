@@ -128,9 +128,11 @@ class NativeApiPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
   static let shared = NativeApiPigeonCodec(readerWriter: NativeApiPigeonCodecReaderWriter())
 }
 
+
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol NativeNotificationsApi {
   func showNotification(payload: NotificationPayload) throws
+  func requestPermissions(completion: @escaping (Result<Bool, Error>) -> Void)
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -153,6 +155,21 @@ class NativeNotificationsApiSetup {
       }
     } else {
       showNotificationChannel.setMessageHandler(nil)
+    }
+    let requestPermissionsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.flutter_challenge.NativeNotificationsApi.requestPermissions\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      requestPermissionsChannel.setMessageHandler { _, reply in
+        api.requestPermissions { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      requestPermissionsChannel.setMessageHandler(nil)
     }
   }
 }

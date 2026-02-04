@@ -11,8 +11,6 @@ import UserNotifications
     let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
     NativeNotificationsApiSetup.setUp(binaryMessenger: controller.binaryMessenger, api: self)
     
-    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
-    
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
@@ -23,9 +21,19 @@ import UserNotifications
     content.body = payload.body
     content.sound = .default
 
-    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+    let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
     let request = UNNotificationRequest(identifier: "\(payload.id)", content: content, trigger: trigger)
 
     UNUserNotificationCenter.current().add(request)
+  }
+
+  func requestPermissions(completion: @escaping (Result<Bool, Error>) -> Void) {
+    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+      if let error = error {
+        completion(.failure(error))
+      } else {
+        completion(.success(granted))
+      }
+    }
   }
 }
