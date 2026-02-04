@@ -10,7 +10,18 @@ class PostRepositoryImpl implements PostRepository {
   // In-memory persistent "likes" for the session
   final Set<int> _likedPostIds = {};
 
-  PostRepositoryImpl({Dio? dio}) : _dio = dio ?? Dio(BaseOptions(baseUrl: 'https://jsonplaceholder.typicode.com'));
+  PostRepositoryImpl({Dio? dio}) : _dio = dio ?? Dio(
+    BaseOptions(
+      baseUrl: 'https://jsonplaceholder.typicode.com',
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'User-Agent': 'FlutterChallenge/1.0',
+      },
+    ),
+  );
 
   @override
   Future<Result<List<PostModel>, Exception>> getPosts() async {
