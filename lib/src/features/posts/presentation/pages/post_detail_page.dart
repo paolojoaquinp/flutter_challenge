@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_challenge/src/features/posts/data/models/comment_model.dart';
 import 'package:flutter_challenge/src/features/posts/data/models/post_model.dart';
 import 'package:flutter_challenge/src/features/posts/data/repositories/post_repository_impl.dart';
@@ -28,12 +29,7 @@ class _Page extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<PostDetailBloc, PostDetailState>(
-      listener: (context, state) {
-        // Handle state changes if necessary
-      },
-      child: _Body(post: post),
-    );
+    return _Body(post: post);
   }
 }
 
@@ -43,59 +39,117 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PostDetailBloc, PostDetailState>(
-      builder: (context, state) {
-        return Scaffold(
-          backgroundColor: Palette.background,
-          appBar: AppBar(
-            title: const Text('Detalle del Post'),
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            elevation: 0,
+    return Scaffold(
+      backgroundColor: Palette.background,
+      appBar: AppBar(
+        backgroundColor: Palette.cardBackground,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Palette.textBody),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Detalle del Post',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: Palette.textBody,
           ),
-          body: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _PostHeader(post: post),
-                const _SectionHeader(title: 'COMENTARIOS'),
-                _CommentsContent(state: state),
-                const SizedBox(height: 40),
-              ],
-            ),
+        ),
+        centerTitle: true,
+      ),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: _buildPostHeader(post),
           ),
-        );
-      },
+          SliverToBoxAdapter(
+            child: _buildSectionHeader('COMENTARIOS'),
+          ),
+          // Comments section
+          BlocBuilder<PostDetailBloc, PostDetailState>(
+            builder: (context, state) {
+              if (state is PostDetailLoading) {
+                return const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              if (state is PostDetailLoaded) {
+                final comments = state.comments;
+                if (comments.isEmpty) {
+                  return SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Center(
+                        child: Text(
+                          'No hay comentarios.',
+                          style: Palette.p.copyWith(color: Palette.textSecondary),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final comment = comments[index];
+                      return Column(
+                        children: [
+                          _buildCommentTile(comment),
+                          if (index < comments.length - 1)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              child: Divider(
+                                height: 1,
+                                color: Colors.grey.withOpacity(0.2),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                    childCount: comments.length,
+                  ),
+                );
+              }
+
+              if (state is PostDetailError) {
+                return SliverToBoxAdapter(
+                  child: Center(
+                    child: Text('Error: ${state.message}'),
+                  ),
+                );
+              }
+
+              return const SliverToBoxAdapter(child: SizedBox.shrink());
+            },
+          ),
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 40),
+          ),
+        ],
+      ),
     );
   }
-}
 
-class _PostHeader extends StatelessWidget {
-  final PostModel post;
-  const _PostHeader({required this.post});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildPostHeader(PostModel post) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       color: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             post.title,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Palette.textBody,
-            ),
+            style: Palette.h1,
           ),
           const SizedBox(height: 16),
           Text(
             post.body,
-            style: const TextStyle(
-              fontSize: 16,
+            style: Palette.p.copyWith(
               color: Palette.textSecondary,
               height: 1.5,
             ),
@@ -104,104 +158,74 @@ class _PostHeader extends StatelessWidget {
       ),
     );
   }
-}
 
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
       child: Text(
         title,
-        style: const TextStyle(
+        style: GoogleFonts.poppins(
           fontSize: 14,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w800,
           color: Palette.textSecondary,
-          letterSpacing: 1.2,
+          letterSpacing: 1.5,
         ),
       ),
     );
   }
-}
 
-class _CommentsContent extends StatelessWidget {
-  final PostDetailState state;
-  const _CommentsContent({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    final currentState = state;
-    if (currentState is PostDetailLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32.0),
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    if (currentState is PostDetailLoaded) {
-      final comments = currentState.comments;
-      if (comments.isEmpty) {
-        return const Center(child: Text('No hay comentarios.'));
-      }
-      return ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: comments.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          final comment = comments[index];
-          return _CommentTile(comment: comment);
-        },
-      );
-    }
-
-    if (currentState is PostDetailError) {
-      return Center(child: Text('Error: ${currentState.message}'));
-    }
-
-    return const SizedBox.shrink();
-  }
-}
-
-class _CommentTile extends StatelessWidget {
-  final CommentModel comment;
-  const _CommentTile({required this.comment});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildCommentTile(CommentModel comment) {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            comment.name,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            comment.email,
-            style: const TextStyle(
-              color: Colors.blue,
-              fontSize: 13,
-            ),
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: Palette.brandPrimary.withOpacity(0.1),
+                child: Text(
+                  comment.name.substring(0, 1).toUpperCase(),
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    color: Palette.brandPrimary,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      comment.name,
+                      style: Palette.b2.copyWith(fontSize: 15),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      comment.email,
+                      style: GoogleFonts.poppins(
+                        color: Palette.brandPrimary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           Text(
             comment.body,
-            style: const TextStyle(
+            style: Palette.p.copyWith(
               color: Palette.textSecondary,
               fontSize: 14,
-              height: 1.4,
+              height: 1.5,
             ),
           ),
         ],
