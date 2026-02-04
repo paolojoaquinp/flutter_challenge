@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'src/app_shell.dart';
 import 'src/core/design/tokens/palette.dart';
 import 'src/core/helpers/hive_helper.dart';
+import 'src/core/presentation/pages/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Palette.background,
         useMaterial3: true,
       ),
-      home: const AppShell(),
+      home: const SplashScreen(),
     );
   }
 }
