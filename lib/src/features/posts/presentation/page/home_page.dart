@@ -1,12 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_challenge/src/core/design/tokens/palette.dart';
+import 'package:flutter_challenge/src/features/post_detail/presenter/page/post_detail_page.dart';
+import 'package:flutter_challenge/src/features/posts/presentation/bloc/post_bloc.dart';
+import 'package:flutter_challenge/src/features/posts/presentation/widgets/post_card.dart';
+import 'package:flutter_challenge/src/features/posts/presentation/widgets/search_bar_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../bloc/post_bloc.dart';
-import '../widgets/post_card.dart';
-import '../widgets/search_bar_widget.dart';
-import '../../../post_detail/presenter/page/post_detail_page.dart';
-import '../../../../core/design/tokens/palette.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -171,33 +172,40 @@ class _PostsList extends StatelessWidget {
               }
               return true;
             },
-            child: ListView.builder(
-              padding: const EdgeInsets.only(top: 8, bottom: 20),
-              itemCount: posts.length + (state.isLoadingMore && !isFavorites ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == posts.length) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-                
-                final post = posts[index];
-                return PostCard(
-                  post: post,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => PostDetailScreen(post: post),
-                      ),
-                    );
-                  },
-                  onLikeToggle: () {
-                    context.read<PostBloc>().add(ToggleLikeEvent(post.id));
-                  },
-                );
+            child: RefreshIndicator(
+              onRefresh: () async {
+                context.read<PostBloc>().add(const RefreshPostsEvent());
+                // Wait for the state to transition out of loading or just a bit of time
+                await Future.delayed(const Duration(seconds: 1));
               },
+              child: ListView.builder(
+                padding: const EdgeInsets.only(top: 8, bottom: 20),
+                itemCount: posts.length + (state.isLoadingMore && !isFavorites ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == posts.length) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  
+                  final post = posts[index];
+                  return PostCard(
+                    post: post,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PostDetailScreen(post: post),
+                        ),
+                      );
+                    },
+                    onLikeToggle: () {
+                      context.read<PostBloc>().add(ToggleLikeEvent(post.id));
+                    },
+                  );
+                },
+              ),
             ),
           );
         }
