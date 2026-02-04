@@ -11,6 +11,14 @@ class LoadPostsEvent extends PostEvent {
   const LoadPostsEvent();
 }
 
+class LoadMorePostsEvent extends PostEvent {
+  const LoadMorePostsEvent();
+}
+
+class RefreshPostsEvent extends PostEvent {
+  const RefreshPostsEvent();
+}
+
 class SearchPostsEvent extends PostEvent {
   final String query;
   const SearchPostsEvent(this.query);

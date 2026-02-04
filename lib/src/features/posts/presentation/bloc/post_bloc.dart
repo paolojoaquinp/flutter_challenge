@@ -18,6 +18,8 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     required this.nativeApi,
   }) : super(const PostInitial()) {
     on<LoadPostsEvent>(_onLoadPosts);
+    on<LoadMorePostsEvent>(_onLoadMorePosts);
+    on<RefreshPostsEvent>(_onRefreshPosts);
     on<SearchPostsEvent>(
       _onSearchPosts,
       transformer: restartable(),
@@ -30,15 +32,60 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     Emitter<PostState> emit,
   ) async {
     emit(const PostLoading());
-    final result = await postRepository.getPosts();
+    final result = await postRepository.getPaginatedPosts(page: 1, limit: 10);
     
     result.when(
       ok: (posts) => emit(PostLoaded(
         posts: posts,
         filteredPosts: posts,
+        currentPage: 1,
+        hasReachedMax: posts.length < 10,
       )),
       err: (error) => emit(PostError(error.toString())),
     );
+  }
+
+  Future<void> _onLoadMorePosts(
+    LoadMorePostsEvent event,
+    Emitter<PostState> emit,
+  ) async {
+    if (state is! PostLoaded) return;
+    final currentState = state as PostLoaded;
+    
+    if (currentState.hasReachedMax || currentState.isLoadingMore || currentState.query.isNotEmpty) return;
+
+    emit(currentState.copyWith(isLoadingMore: true));
+
+    final nextPage = currentState.currentPage + 1;
+    final result = await postRepository.getPaginatedPosts(page: nextPage, limit: 10);
+
+    result.when(
+      ok: (newPosts) {
+        if (newPosts.isEmpty) {
+          emit(currentState.copyWith(
+            hasReachedMax: true,
+            isLoadingMore: false,
+          ));
+        } else {
+          final updatedPosts = List<PostModel>.from(currentState.posts)..addAll(newPosts);
+          emit(currentState.copyWith(
+            posts: updatedPosts,
+            filteredPosts: updatedPosts, // Assuming search is empty as per check above
+            currentPage: nextPage,
+            hasReachedMax: newPosts.length < 10,
+            isLoadingMore: false,
+          ));
+        }
+      },
+      err: (error) => emit(currentState.copyWith(isLoadingMore: false)),
+    );
+  }
+
+  Future<void> _onRefreshPosts(
+    RefreshPostsEvent event,
+    Emitter<PostState> emit,
+  ) async {
+    add(const LoadPostsEvent());
   }
 
   void _onSearchPosts(
@@ -75,17 +122,14 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     if (state is PostLoaded) {
       final currentState = state as PostLoaded;
       
-      // Update repository (in-memory persistent state)
       if (postRepository is PostRepositoryImpl) {
         (postRepository as PostRepositoryImpl).toggleLike(event.postId);
       }
 
-      // Update current state items
       final updatedPosts = currentState.posts.map<PostModel>((post) {
         if (post.id == event.postId) {
           final newIsLiked = !post.isLiked;
           if (newIsLiked) {
-             // Trigger native notification if liked
              nativeApi.showNotification(NotificationPayload(
                id: post.id,
                title: 'Te ha gustado:',

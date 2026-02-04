@@ -25,8 +25,22 @@ class PostRepositoryImpl implements PostRepository {
 
   @override
   Future<Result<List<PostModel>, Exception>> getPosts() async {
+    return getPaginatedPosts(page: 1, limit: 100); // For compatibility if needed
+  }
+
+  @override
+  Future<Result<List<PostModel>, Exception>> getPaginatedPosts({
+    int page = 1,
+    int limit = 10,
+  }) async {
     try {
-      final response = await _dio.get('/posts');
+      final response = await _dio.get(
+        '/posts',
+        queryParameters: {
+          '_page': page,
+          '_limit': limit,
+        },
+      );
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
         final posts = data.map((json) {
