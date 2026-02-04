@@ -10,7 +10,7 @@ The project follows **Clean Architecture** principles and the **BLoC (Business L
 | Android | iOS |
 | :---: | :---: |
 | [Placeholder: Android Video] | [Placeholder: iOS Video] |
-| ![Android Demo](https://drive.google.com/file/d/1VCG4C24hm_6MuKc0rRwGt-qHuIGxx_1u/view?usp=sharing) | ![iOS Demo](https://drive.google.com/file/d/1Qg9m650nzNyD9V413BfU_qZ0ovZ1G-LN/view?usp=sharing) |
+| [Android Demo](https://drive.google.com/file/d/1VCG4C24hm_6MuKc0rRwGt-qHuIGxx_1u/view?usp=sharing) | [iOS Demo](https://drive.google.com/file/d/1Qg9m650nzNyD9V413BfU_qZ0ovZ1G-LN/view?usp=sharing) |
 
 ---
 
@@ -68,10 +68,4 @@ dart run pigeon --input pigeons/api.dart
 
 ---
 
-## 📂 Documentation
-- [**Requirements Guide**](./docs/requirements.md)
-- [**Design Document**](./docs/design.md)
-
----
-
-Developed as part of the **Flutter Challenge**.
+Developed as part of the **Flutter Challenge** by @paolojoaquinp.
