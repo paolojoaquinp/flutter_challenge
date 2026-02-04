@@ -25,7 +25,7 @@ The system is designed using a **Feature-First Clean Architecture** approach, en
 - **Core Layer**: Provides shared utilities, themes, and platform-specific bridges.
 
 ### Key Decisions
-- **MVVM + BLoC**: Decoupling the UI from business logic with streams.
+- **Clean + BLoC**: Decoupling the UI from business logic with streams.
 - **Hive Persistence**: Blazing fast local storage for offline capabilities and user preferences (Likes).
 - **Pigeon for Native Communication**: Type-safe platform channels for local notifications on Android and iOS.
 
