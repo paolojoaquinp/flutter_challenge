@@ -17,6 +17,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     required this.postRepository,
     required this.nativeApi,
   }) : super(const PostInitial()) {
+    _initializeNotifications();
     on<LoadPostsEvent>(_onLoadPosts);
     on<LoadMorePostsEvent>(_onLoadMorePosts);
     on<RefreshPostsEvent>(_onRefreshPosts);
@@ -25,6 +26,10 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       transformer: restartable(),
     );
     on<ToggleLikeEvent>(_onToggleLike);
+  }
+
+  void _initializeNotifications() {
+    nativeApi.requestPermissions();
   }
 
   Future<void> _onLoadPosts(
@@ -130,11 +135,13 @@ class PostBloc extends Bloc<PostEvent, PostState> {
         if (post.id == event.postId) {
           final newIsLiked = !post.isLiked;
           if (newIsLiked) {
-             nativeApi.showNotification(NotificationPayload(
-               id: post.id,
-               title: 'Te ha gustado:',
-               body: post.title,
-             ));
+             nativeApi.showNotification(
+               NotificationPayload(
+                 id: post.id,
+                 title: 'Te ha gustado:',
+                 body: post.title,
+               ),
+             );
           }
           return post.copyWith(isLiked: newIsLiked);
         }

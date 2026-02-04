@@ -4,7 +4,7 @@ import 'package:pigeon/pigeon.dart';
   dartOut: 'lib/src/core/utils/native_api.g.dart',
   dartOptions: DartOptions(),
   kotlinOut: 'android/app/src/main/kotlin/com/example/flutter_challenge/NativeApi.g.kt',
-  kotlinOptions: KotlinOptions(),
+  kotlinOptions: KotlinOptions(package: 'com.example.flutter_challenge'),
   swiftOut: 'ios/Runner/NativeApi.g.swift',
   swiftOptions: SwiftOptions(),
   dartPackageName: 'flutter_challenge',
@@ -25,4 +25,6 @@ class NotificationPayload {
 @HostApi()
 abstract class NativeNotificationsApi {
   void showNotification(NotificationPayload payload);
+  @async
+  bool requestPermissions();
 }

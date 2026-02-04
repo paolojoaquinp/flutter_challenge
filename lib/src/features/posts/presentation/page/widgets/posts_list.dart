@@ -10,7 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 class PostsList extends StatelessWidget {
   final bool isFavorites;
 
-  const PostsList({required this.isFavorites});
+  const PostsList({super.key, required this.isFavorites});
 
   @override
   Widget build(BuildContext context) {
